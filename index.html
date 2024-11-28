@@ -128,11 +128,6 @@
 		                listElement.appendChild(listItem);
 		            }
 		        });
-		    } catch (error) {
-		        const errorItem = document.createElement("li");
-		        errorItem.textContent = `Errore: ${error.message}`;
-		        listElement.appendChild(errorItem);
-		    }
 		}
         // Carica automaticamente i file per tutti i path
         paths.forEach(({ id, path }) => {
