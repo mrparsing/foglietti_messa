@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foglietti Messa - Liste</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .lists {
+            display: flex;
+            gap: 20px;
+            justify-content: space-around;
+        }
+        .list {
+            width: 18%;
+        }
+        h2 {
+            font-size: 1.2em;
+            color: green;
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+        .file a {
+            color: blue;
+            text-decoration: none;
+        }
+        .file a:hover {
+            text-decoration: underline;
+        }
+        .refresh-link {
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+            font-size: 1em;
+            color: white;
+            background-color: green;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            width: 200px;
+        }
+        .refresh-link:hover {
+            background-color: darkgreen;
+        }
+    </style>
+</head>
+<body>
+    <h1>Foglietti Messa - Elenco PDF</h1>
+    <div class="lists">
+        <div class="list" id="annoA">
+            <h2>ANNO A</h2>
+            <ul></ul>
+        </div>
+        <div class="list" id="annoB">
+            <h2>ANNO B</h2>
+            <ul></ul>
+        </div>
+        <div class="list" id="annoC">
+            <h2>ANNO C</h2>
+            <ul></ul>
+        </div>
+        <div class="list" id="natale">
+            <h2>Natale</h2>
+            <ul></ul>
+        </div>
+        <div class="list" id="pasqua">
+            <h2>Pasqua</h2>
+            <ul></ul>
+        </div>
+    </div>
+
+    <!-- Link di ritorno alla stessa pagina -->
+    <a href="#" class="refresh-link">Torna all'inizio</a>
+
+    <script>
+        const owner = "mrparsing";
+        const repo = "foglietti_messa";
+        const paths = [
+            { id: "annoA", path: "ANNO%20A" },
+            { id: "annoB", path: "ANNO%20B" },
+            { id: "annoC", path: "ANNO%20C" },
+            { id: "natale", path: "Natale" },
+            { id: "pasqua", path: "Pasqua" }
+        ];
+
+        async function fetchFilesFromGitHub(id, path) {
+            const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+            const listElement = document.getElementById(id).querySelector("ul");
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Errore HTTP: ${response.status}`);
+                }
+
+                const files = await response.json();
+
+                files.forEach(file => {
+                    if (file.type === "file" && file.name.endsWith(".pdf")) {
+                        const listItem = document.createElement("li");
+                        listItem.className = "file";
+
+                        // Crea il link diretto a GitHub Pages
+                        const pdfUrl = `https://mrparsing.github.io/foglietti_messa/${path}/${file.name}`;
+                        const link = document.createElement("a");
+                        link.href = pdfUrl;
+                        link.textContent = file.name;
+                        link.target = "_blank"; // Apre in una nuova scheda
+                        link.rel = "noopener noreferrer"; // Migliore sicurezza
+
+                        listItem.appendChild(link);
+                        listElement.appendChild(listItem);
+                    }
+                });
+            } catch (error) {
+                const errorItem = document.createElement("li");
+                errorItem.textContent = `Errore: ${error.message}`;
+                listElement.appendChild(errorItem);
+            }
+        }
+
+        // Carica automaticamente i file per tutti i path
+        paths.forEach(({ id, path }) => {
+            fetchFilesFromGitHub(id, path);
+        });
+    </script>
+</body>
+</html>
