@@ -92,42 +92,48 @@
             { id: "pasqua", path: "Pasqua" }
         ];
 
-        async function fetchFilesFromGitHub(id, path) {
-            const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-            const listElement = document.getElementById(id).querySelector("ul");
+		async function fetchFilesFromGitHub(id, path) {
+		    const listElement = document.getElementById(id).querySelector("ul");
 
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Errore HTTP: ${response.status}`);
-                }
+			const token = process.env.PAT;
+			const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
 
-                const files = await response.json();
+			const response = await fetch(url, {
+			    method: 'GET',
+			    headers: {
+			        'Authorization': `token ${token}`
+			    }
+			});
 
-                files.forEach(file => {
-                    if (file.type === "file" && file.name.endsWith(".pdf")) {
-                        const listItem = document.createElement("li");
-                        listItem.className = "file";
+		        if (!response.ok) {
+		            throw new Error(`Errore HTTP: ${response.status}`);
+		        }
 
-                        // Crea il link diretto a GitHub Pages
-                        const pdfUrl = `https://mrparsing.github.io/foglietti_messa/${path}/${file.name}`;
-                        const link = document.createElement("a");
-                        link.href = pdfUrl;
-                        link.textContent = file.name;
-                        link.target = "_blank"; // Apre in una nuova scheda
-                        link.rel = "noopener noreferrer"; // Migliore sicurezza
+		        const files = await response.json();
 
-                        listItem.appendChild(link);
-                        listElement.appendChild(listItem);
-                    }
-                });
-            } catch (error) {
-                const errorItem = document.createElement("li");
-                errorItem.textContent = `Errore: ${error.message}`;
-                listElement.appendChild(errorItem);
-            }
-        }
+		        files.forEach(file => {
+		            if (file.type === "file" && file.name.endsWith(".pdf")) {
+		                const listItem = document.createElement("li");
+		                listItem.className = "file";
 
+		                // Crea il link diretto al file su GitHub Pages
+		                const pdfUrl = `https://mrparsing.github.io/foglietti_messa/${path}/${file.name}`;
+		                const link = document.createElement("a");
+		                link.href = pdfUrl;
+		                link.textContent = file.name;
+		                link.target = "_blank"; // Apre in una nuova scheda
+		                link.rel = "noopener noreferrer"; // Migliore sicurezza
+
+		                listItem.appendChild(link);
+		                listElement.appendChild(listItem);
+		            }
+		        });
+		    } catch (error) {
+		        const errorItem = document.createElement("li");
+		        errorItem.textContent = `Errore: ${error.message}`;
+		        listElement.appendChild(errorItem);
+		    }
+		}
         // Carica automaticamente i file per tutti i path
         paths.forEach(({ id, path }) => {
             fetchFilesFromGitHub(id, path);
