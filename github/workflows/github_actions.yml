@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Configura il token
-        run: echo "GH_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+        run: echo "GH_TOKEN=${{ secrets.PAT }}" >> $GITHUB_ENV
 
       - name: Usa il token per interagire con l'API
         run: |
